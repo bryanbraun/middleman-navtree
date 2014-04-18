@@ -6,14 +6,15 @@ module Middleman
       #  A recursive helper for converting source tree data from into HTML
       def tree_to_html(value, depth = Float::INFINITY, key = nil, level = 0)
         html = ''
-binding.remote_pry
+
         if value.is_a?(String)
           # This is a child item (a file). Get the Sitemap resource for this file.
-          this_resource = sitemap.find_resource_by_destination_path(value)
+          this_resource = sitemap.find_resource_by_path(sitemap.extensionless_path(value))
           # Define string for active states.
           active = this_resource == current_page ? 'active' : ''
           title = discover_title(this_resource)
-          html << "<li class='child #{active}'><a href='#{this_resource.url}'>#{title}</a></li>"
+          link = link_to(title, this_resource.url)
+          html << "<li class='child #{active}'>#{link}</li>"
         else
           # This is a directory.
           if key.nil?
@@ -86,18 +87,11 @@ binding.remote_pry
 
         if value.is_a?(String)
           # This is a child item (a file).
-          flat_tree.push(value)
+          flat_tree.push(sitemap.extensionless_path(value))
         elsif value.is_a?(Hash)
           # This is a parent item (a directory).
           value.each do |key, child|
             flatten_source_tree(child, key, level + 1, flat_tree)
-          end
-        # @todo: I think we can take this part out when arrays aren't in the
-        #        sourcetree anymore.
-        elsif value.is_a?(Array)
-          # This is a collection. It could contain files, directories, or both.
-          value.each_with_index do |item, key|
-            flatten_source_tree(item, key, level + 1, flat_tree)
           end
         end
 

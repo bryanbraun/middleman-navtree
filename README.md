@@ -22,8 +22,9 @@ Alternatively, you can specify the options you want. Here's an example showing t
       options.data_file = 'data/tree.yml' # The data file where our navtree is stored.
       options.source_dir = 'source' # The `source` directory we want to represent in our nav tree.
       options.ignore_files = ['sitemap.xml', 'robots.txt'] # An array of files we want to ignore when building our tree.
-      options.ignore_dir = ['images', 'javascripts', 'stylesheets', 'layouts'] # An array of directories we want to ignore when building our tree.
+      options.ignore_dir = ['assets'] # An array of directories we want to ignore when building our tree.
       options.promote_files = ['index.html.erb'] # Any files we might want to promote to the front of our navigation
+      options.ext_whitelist = [] # If you add extensions (like '.md') to this array, it builds a whitelist of filetypes for inclusion in the navtree.
     end
 
 ## Usage Examples
@@ -69,13 +70,11 @@ through the tree. For example:
 
     <%= previous_link(data.tree) %> <%= next_link(data.tree) %>
 
-    ![Styled next/previous links](screenshots/previous-next.png)
+![Styled next/previous links](screenshots/previous-next.png)
 
 You can likewise limit pagination to a specific subtree:
 
     <%= previous_link(data.tree['chapter-2']) %><%= next_link(data.tree['chapter-2']) %>
-
-With the tree structure stored in YAML, you can create your own helpers as well.
 
 
 ## Contributing
