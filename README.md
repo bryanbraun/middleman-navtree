@@ -12,9 +12,8 @@ And then execute:
 
     $ bundle install
 
-Active the extension by adding the following to middleman's `config.rb`:
+Activate the extension with default options by adding the following to middleman's `config.rb`:
 
-    # Activate the extension with default options.
     activate :navtree
 
 Alternatively, you can specify the options you want. Here's an example showing the explicit defaults:
@@ -70,6 +69,8 @@ through the tree. For example:
 
     <%= previous_link(data.tree) %> <%= next_link(data.tree) %>
 
+    ![Styled next/previous links](screenshots/previous-next.png)
+
 You can likewise limit pagination to a specific subtree:
 
     <%= previous_link(data.tree['chapter-2']) %><%= next_link(data.tree['chapter-2']) %>
@@ -83,4 +84,4 @@ With the tree structure stored in YAML, you can create your own helpers as well.
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to your github repository (git push origin my-new-feature)
-5. Create a new Pull Request
+5. Submit a Pull Request

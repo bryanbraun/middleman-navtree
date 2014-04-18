@@ -15,6 +15,8 @@ module Middleman
       option :ignore_files, ['sitemap.xml', 'robots.txt'], 'A list of filenames we want to ignore when building our tree.'
       option :ignore_dir, ['images', 'javascripts', 'stylesheets', 'layouts'], 'A list of directory names we want to ignore when building our tree.'
       option :promote_files, ['index.html.erb'], 'A list of files you want to push to the front of the tree (if they exist).'
+      option :ext_whitelist, [], 'A whitelist of filename extensions (post-render) that we are allowing in our navtree. Example: [".html"]'
+
 
       # Helpers for use within templates and layouts.
       self.defined_helpers = [ ::Middleman::NavTree::Helpers ]
@@ -46,10 +48,6 @@ module Middleman
 
 
       # Method for storing the directory structure in a hash.
-      # @todo: find a more elegant solution than just replacing "the filename" with ".html", or otherwise ensure
-      #        it works for the other types of template files that middleman supports, and doesn't
-      #        act weird on things like .js or .xml files. Maybe make a file extension whitelist? Blacklist?
-      #        See: http://middlemanapp.com/basics/templates/#other-templating-languages
       # @todo: the order of the data is defined by the order in the hash, and technically, ruby hashes
       #        are unordered. This may be more robust if I defined an ordered hash type similar to
       #        this one in Rails: http://apidock.com/rails/ActiveSupport/OrderedHash
@@ -57,14 +55,16 @@ module Middleman
         data = {}
         Dir.foreach(path) do |filename|
 
-          # Check to see if we should skip this file. We skip invisible files (starts with ".", ignored files, and promoted files
-          # (which are handled later in the process).
+          # Check to see if we should skip this file. We skip invisible files
+          # (starts with "."), ignored files, and promoted files (which are
+          # handled later in the process).
           next if (filename[0] == '.')
           next if (filename == '..' || filename == '.')
           next if options.ignore_files.include? filename
+
           if options.promote_files.include? filename
             # Transform filepath (/source/directory/file.md => /directory/file.html)
-            destination_path = path.sub(/^source/, '') + '/' + filename.chomp(File.extname(filename)) + '.html'
+            destination_path = path.sub(/^source/, '') + '/' + prep_filename(filename)
             @existing_promotes << destination_path
             next
           end
@@ -78,9 +78,15 @@ module Middleman
             # Loop through the method again.
             data.store(filename, scan_directory(full_path, options, filename))
           else
-            # This item is a file... store the destination path.
-            # Transform filepath (/source/directory/file.md => /directory/file.html)
-            destination_path = path.sub(/^source/, '') + '/' + filename.chomp(File.extname(filename)) + '.html'
+            # This item is a file.
+            final_filename = prep_filename(filename)
+            # We're whitelisting extensions, so only html files show up in the sourcetree.
+            if !options.ext_whitelist.empty?
+              next unless options.ext_whitelist.include? File.extname(final_filename)
+            end
+
+            # Transform filepath (/source/directory/file.md => /directory/file.html) and store it.
+            destination_path = path.sub(/^source/, '') + '/' + final_filename
             data.store(filename, destination_path)
           end
         end
@@ -88,15 +94,68 @@ module Middleman
         return data
       end
 
+      # This method renames filenames so they are always properly formatted for
+      # looking up data in the sitemap.
+      def prep_filename(filename)
+        # Build an array of tilt formats to test our extensions against. The
+        # master list is here:
+        # http://middlemanapp.com/basics/templates/#other-templating-languages
+        formats = ['html', 'slim', 'erb', 'rhtml', 'erubis', 'less', 'builder', 'liquid', 'markdown', 'mkd', 'md', 'textile', 'rdoc', 'radius', 'mab', 'nokogirl', 'coffee', 'wiki', 'creole', 'mediawiki', 'mw', 'yaji', 'styl', 'xml', 'css']
+        md_formats = ['markdown', 'mkd', 'md']
+
+        number_of_periods = filename.count '.'
+        extensions = filename.split('.')
+
+        if number_of_periods == 0
+          # There's no extension, so we just return the filename unchanged.
+          filename
+        elsif number_of_periods == 1
+          if formats.include? extensions[-1]
+            # There's a single extension for us to replace with .html (because
+            # that's what middleman will do). This is the most common situation.
+            filename.chomp(extensions[-1]) << 'html'
+          else
+            # The extension wasn't in our list, so we just return the filename.
+            filename
+          end
+        else
+          # Has two+ extensions, like "test.html.md" or "1.1-test.html.md".
+          # We only test the last two extensions, because middleman only changes
+          # the last two.
+          if formats.include?(extensions[-1]) && formats.include?(extensions[-2])
+            if md_formats.include? extensions[-2]
+              # Drop both extensions, and append "html".
+              filename.chomp(extensions[-2] << '.' << extensions[-1]) << 'html'
+            else
+              # Only drop the last extension (since middleman keeps the 2nd to last).
+              filename.chomp('.' << extensions[-1])
+            end
+          elsif formats.include? extensions[-1]
+            # Replace the final extension with .html. Example: 1.1-test.md => 1.1-test.html. Note,
+            # this still won't match the sitemap because of that middleman bug.
+            filename.chomp(extensions[-1]) << 'html'
+          else
+            # No extensions were in our list, so we just return the filename.
+            filename
+          end
+        end
+      end
+
       # Method for appending promoted files to the front of our source tree.
       # @todo: Currently, options.promote_files only expects a filename, which means that
       #        if multiple files in different directories have the same filename, they
       #        will both be promoted, and one will not appear (due to the 'no-two-identical
       #        -indices-in-a-hash' rule).
+      # @todo: This system also assumes filenames only have a single extension,
+      #        which may not be the case (like index.html.erb)
       def promote_files(tree_hash, options)
 
         if @existing_promotes.any?
           ordered_matches = []
+
+          # The purpose of this loop is to get my list of existing promotes
+          # in the order specified in the options array, so it can be promoted
+          # properly.
           options.promote_files.each do |filename|
             # Get filename without extension (index.md => index)
             filename_without_ext = filename.chomp(File.extname(filename))

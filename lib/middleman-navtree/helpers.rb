@@ -6,7 +6,7 @@ module Middleman
       #  A recursive helper for converting source tree data from into HTML
       def tree_to_html(value, depth = Float::INFINITY, key = nil, level = 0)
         html = ''
-
+binding.remote_pry
         if value.is_a?(String)
           # This is a child item (a file). Get the Sitemap resource for this file.
           this_resource = sitemap.find_resource_by_destination_path(value)
@@ -127,7 +127,8 @@ module Middleman
         elsif match = page.render({:layout => false}).match(/<h.+>(.*?)<\/h1>/)
           return match[1]
         else
-          return page.url.split(/\//).last.titleize
+          filename = page.url.split(/\//).last.titleize
+          return filename.chomp(File.extname(filename))
         end
       end
 
