@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Bryan Braun"]
   s.email       = ["bbraun7@gmail.com"]
-  s.homepage    = "http://bryanbraun.github.io/middleman-navtree"
+  s.homepage    = "https://github.com/bryanbraun/middleman-navtree"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
