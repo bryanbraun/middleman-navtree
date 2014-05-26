@@ -12,9 +12,9 @@ module Middleman
       option :data_file, 'data/tree.yml', 'The file we will write our directory tree to.'
       option :ignore_files, ['sitemap.xml', 'robots.txt'], 'A list of filenames we want to ignore when building our tree.'
       option :ignore_dir, ['assets'], 'A list of directory names we want to ignore when building our tree.'
+      option :home_title, 'Home', 'The default link title of the home page (located at "/"), if otherwise not detected.'
       option :promote_files, ['index.html.erb'], 'A list of files you want to push to the front of the tree (if they exist).'
       option :ext_whitelist, [], 'A whitelist of filename extensions (post-render) that we are allowing in our navtree. Example: [".html"]'
-
 
       # Helpers for use within templates and layouts.
       self.defined_helpers = [ ::Middleman::NavTree::Helpers ]
@@ -71,7 +71,7 @@ module Middleman
           next if options.ignore_files.include? filename
 
           if options.promote_files.include? filename
-            original_path = path.sub(/^source/, '') + '/' + filename
+            original_path = path.sub(/^#{options.source_dir}/, '') + '/' + filename
             @existing_promotes << original_path
             next
           end
@@ -92,7 +92,7 @@ module Middleman
               next unless options.ext_whitelist.include? File.extname(filename)
             end
 
-            original_path = path.sub(/^source/, '') + '/' + filename
+            original_path = path.sub(/^#{options.source_dir}/, '') + '/' + filename
             data.store(filename, original_path)
           end
         end

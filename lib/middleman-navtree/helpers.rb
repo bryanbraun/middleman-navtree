@@ -9,11 +9,12 @@ module Middleman
 
         if value.is_a?(String)
           # This is a child item (a file). Get the Sitemap resource for this file.
+          # note: sitemap.extensionless_path converts the path to its 'post-build' extension.
           this_resource = sitemap.find_resource_by_path(sitemap.extensionless_path(value))
           # Define string for active states.
           active = this_resource == current_page ? 'active' : ''
           title = discover_title(this_resource)
-          link = link_to(title, this_resource.url)
+          link = link_to(title, sitemap.extensionless_path(value))
           html << "<li class='child #{active}'>#{link}</li>"
         else
           # This is a directory.
@@ -83,6 +84,8 @@ module Middleman
       end
 
       # Method to flatten the source tree, for use in pagination methods.
+      # Note, I could do this with a lot less code using Glob. I should refactor
+      # in the future. See http://stackoverflow.com/a/2370823/1154642.
       def flatten_source_tree(value, k = [], level = 0, flat_tree = [])
 
         if value.is_a?(String)
@@ -114,12 +117,15 @@ module Middleman
       # Based on this: http://forum.middlemanapp.com/t/using-heading-from-page-as-title/44/3
       # 1) Use the title from frontmatter metadata, or
       # 2) peek into the page to find the H1, or
-      # 3) fallback to a filename-based-title
+      # 3) Use the home_title option (if this is the home page--defaults to "Home"), or
+      # 4) fallback to a filename-based-title
       def discover_title(page = current_page)
         if page.data.title
           return page.data.title # Frontmatter title
+        elsif page.url == '/'
+          return extensions[:navtree].options[:home_title]
         elsif match = page.render({:layout => false}).match(/<h.+>(.*?)<\/h1>/)
-          return match[1]
+          return match[1] # H1 title
         else
           filename = page.url.split(/\//).last.titleize
           return filename.chomp(File.extname(filename))

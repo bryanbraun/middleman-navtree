@@ -23,6 +23,7 @@ Alternatively, you can specify the options you want. Here's an example showing t
       options.source_dir = 'source' # The `source` directory we want to represent in our nav tree.
       options.ignore_files = ['sitemap.xml', 'robots.txt'] # An array of files we want to ignore when building our tree.
       options.ignore_dir = ['assets'] # An array of directories we want to ignore when building our tree.
+      options.home_title = 'Home' # The default link title of the home page (located at "/"), if otherwise not detected.
       options.promote_files = ['index.html.erb'] # Any files we might want to promote to the front of our navigation
       options.ext_whitelist = [] # If you add extensions (like '.md') to this array, it builds a whitelist of filetypes for inclusion in the navtree.
     end
