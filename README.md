@@ -19,7 +19,7 @@ Activate the extension with default options by adding the following to middleman
 Alternatively, you can specify the options you want. Here's an example showing the explicit defaults:
 
     activate :navtree do |options|
-      options.data_file = 'data/tree.yml' # The data file where our navtree is stored.
+      options.data_file = 'tree.yml' # The data file where our navtree is stored.
       options.source_dir = 'source' # The `source` directory we want to represent in our nav tree.
       options.ignore_files = ['sitemap.xml', 'robots.txt'] # An array of files we want to ignore when building our tree.
       options.ignore_dir = ['assets'] # An array of directories we want to ignore when building our tree.
