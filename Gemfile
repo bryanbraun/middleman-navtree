@@ -9,6 +9,7 @@ group :development do
   gem 'rake'
   gem 'rdoc'
   gem 'yard'
+  gem 'pry', :require => true # for debugging
 end
 
 group :test do

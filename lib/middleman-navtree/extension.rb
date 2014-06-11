@@ -9,7 +9,7 @@ module Middleman
     class NavTreeExtension < ::Middleman::Extension
       # All the options for this extension
       option :source_dir, 'source', 'The directory our tree will begin at.'
-      option :data_file, 'data/tree.yml', 'The file we will write our directory tree to.'
+      option :data_file, 'tree.yml', 'The file we will write our directory tree to.'
       option :ignore_files, ['sitemap.xml', 'robots.txt'], 'A list of filenames we want to ignore when building our tree.'
       option :ignore_dir, ['assets'], 'A list of directory names we want to ignore when building our tree.'
       option :home_title, 'Home', 'The default link title of the home page (located at "/"), if otherwise not detected.'
@@ -51,7 +51,8 @@ module Middleman
         # Write our directory tree to file as YAML.
         # @todo: This step doesn't rebuild during live-reload, which causes errors if you move files
         #        around during development. It may not be that hard to set up. Low priority though.
-        IO.write(options.data_file, YAML::dump(tree_hash))
+        data_path = app.settings.data_dir + '/' + options.data_file
+        IO.write(data_path, YAML::dump(tree_hash))
       end
 
 
@@ -83,7 +84,7 @@ module Middleman
             next if options.ignore_dir.include? filename
 
             # Loop through the method again.
-            data.store(filename, scan_directory(full_path, options, filename))
+            data.store(filename.gsub(' ', '%20'), scan_directory(full_path, options, filename))
           else
 
             # This item is a file.
@@ -93,7 +94,7 @@ module Middleman
             end
 
             original_path = path.sub(/^#{options.source_dir}/, '') + '/' + filename
-            data.store(filename, original_path)
+            data.store(filename.gsub(' ', '%20'), original_path.gsub(' ', '%20'))
           end
         end
 

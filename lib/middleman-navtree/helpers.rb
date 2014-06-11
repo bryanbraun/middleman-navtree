@@ -8,26 +8,28 @@ module Middleman
         html = ''
 
         if value.is_a?(String)
-          # This is a child item (a file). Get the Sitemap resource for this file.
+          # This is a file.
+          # Get the Sitemap resource for this file.
           # note: sitemap.extensionless_path converts the path to its 'post-build' extension.
           this_resource = sitemap.find_resource_by_path(sitemap.extensionless_path(value))
           # Define string for active states.
           active = this_resource == current_page ? 'active' : ''
           title = discover_title(this_resource)
-          link = link_to(title, sitemap.extensionless_path(value))
+          link = link_to(title, this_resource)
           html << "<li class='child #{active}'>#{link}</li>"
         else
-          # This is a directory.
+          # This is the first level source directory. We treat it special because
+          # it has no key and needs no list item.
           if key.nil?
-            # The first level is the source directory, so it has no key and needs no list item.
             value.each do |newkey, child|
               html << tree_to_html(child, depth, newkey, level + 1)
             end
           # Continue rendering deeper levels of the tree, unless restricted by depth.
           elsif depth >= (level + 1)
-            # This directory has a key and should be listed in the page hieararcy with HTML.
-            dir_name = key
-            html << "<li class='parent'><span class='parent-label'>#{dir_name.gsub(/-/, ' ').gsub(/_/, ' ').titleize}</span>"
+            # This is a directory.
+            # The directory has a key and should be listed in the page hieararcy with HTML.
+            dir_name = format_directory_name(key)
+            html << "<li class='parent'><span class='parent-label'>#{dir_name}</span>"
             html << '<ul>'
 
             # Loop through all the directory's contents.
@@ -113,7 +115,12 @@ module Middleman
         return FALSE
       end
 
-      # Utility helper for getting the page title
+      # Format Directory name for display in navtree.
+      def format_directory_name(dir_name)
+        dir_name.gsub(/-/, ' ').gsub(/_/, ' ').gsub('%20', ' ').titleize
+      end
+
+      # Utility helper for getting the page title for display in the navtree.
       # Based on this: http://forum.middlemanapp.com/t/using-heading-from-page-as-title/44/3
       # 1) Use the title from frontmatter metadata, or
       # 2) peek into the page to find the H1, or
@@ -127,7 +134,7 @@ module Middleman
         elsif match = page.render({:layout => false}).match(/<h.+>(.*?)<\/h1>/)
           return match[1] # H1 title
         else
-          filename = page.url.split(/\//).last.titleize
+          filename = page.url.split(/\//).last.titleize.gsub('%20', ' ')
           return filename.chomp(File.extname(filename))
         end
       end
