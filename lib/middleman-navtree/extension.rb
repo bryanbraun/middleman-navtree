@@ -56,10 +56,8 @@ module Middleman
       end
 
 
-      # Method for storing the directory structure in a hash.
-      # @todo: the order of the data is defined by the order in the hash, and technically, ruby hashes
-      #        are unordered. This may be more robust if I defined an ordered hash type similar to
-      #        this one in Rails: http://apidock.com/rails/ActiveSupport/OrderedHash
+      # Method for storing the directory structure in an ordered hash. See more on
+      # ordered hashes at https://www.igvita.com/2009/02/04/ruby-19-internals-ordered-hash/
       def scan_directory(path, options, name=nil)
         data = {}
         Dir.foreach(path) do |filename|
@@ -98,7 +96,8 @@ module Middleman
           end
         end
 
-        return data
+        # Return this level's data as a hash sorted by keys.
+        return Hash[data.sort]
       end
 
       # Method for appending promoted files to the front of our source tree.

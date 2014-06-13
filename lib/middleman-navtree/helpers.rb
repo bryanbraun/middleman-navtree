@@ -86,10 +86,7 @@ module Middleman
       end
 
       # Method to flatten the source tree, for use in pagination methods.
-      # Note, I could do this with a lot less code using Glob. I should refactor
-      # in the future. See http://stackoverflow.com/a/2370823/1154642.
       def flatten_source_tree(value, k = [], level = 0, flat_tree = [])
-
         if value.is_a?(String)
           # This is a child item (a file).
           flat_tree.push(sitemap.extensionless_path(value))
@@ -116,8 +113,13 @@ module Middleman
       end
 
       # Format Directory name for display in navtree.
+      # Example Name: 1%20-%20sink-or_swim
       def format_directory_name(dir_name)
-        dir_name.gsub(/-/, ' ').gsub(/_/, ' ').gsub('%20', ' ').titleize
+        dir_name.gsub!('%20', ' ') #=> 1 - sink-or_swim
+        dir_name.gsub!(/(?!\s)-(?!\s)/, ' ') #=> 1 - sink or_swim
+        dir_name.gsub!(/_/, ' ') #=> 1 - sink or swim
+        # @todo: Find a way for titleize to not blow away ' - ' formatting.
+        dir_name.titleize! #=> 1 Sink or Swim
       end
 
       # Utility helper for getting the page title for display in the navtree.
@@ -129,12 +131,12 @@ module Middleman
       def discover_title(page = current_page)
         if page.data.title
           return page.data.title # Frontmatter title
-        elsif page.url == '/'
-          return extensions[:navtree].options[:home_title]
         elsif match = page.render({:layout => false}).match(/<h.+>(.*?)<\/h1>/)
           return match[1] # H1 title
+        elsif page.url == '/'
+          return extensions[:navtree].options[:home_title]
         else
-          filename = page.url.split(/\//).last.titleize.gsub('%20', ' ')
+          filename = page.url.split(/\//).last.gsub('%20', ' ').titleize
           return filename.chomp(File.extname(filename))
         end
       end
