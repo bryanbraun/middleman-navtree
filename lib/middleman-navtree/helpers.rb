@@ -40,7 +40,6 @@ module Middleman
             html << '</li>'
           end
         end
-
         return html
       end
 
@@ -131,7 +130,7 @@ module Middleman
       def discover_title(page = current_page)
         if page.data.title
           return page.data.title # Frontmatter title
-        elsif match = page.render({:layout => false}).match(/<h.+>(.*?)<\/h1>/)
+        elsif match = page.render({:layout => false, :no_images => true}).match(/<h.+>(.*?)<\/h1>/)
           return match[1] # H1 title
         elsif page.url == '/'
           return extensions[:navtree].options[:home_title]
