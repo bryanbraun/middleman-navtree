@@ -10,6 +10,7 @@ module Middleman
       # All the options for this extension
       option :source_dir, 'source', 'The directory our tree will begin at.'
       option :data_file, 'tree.yml', 'The file we will write our directory tree to.'
+      option :data_file_keep, false, 'The file with directory tree will not be overwritten.'
       option :ignore_files, ['sitemap.xml', 'robots.txt'], 'A list of filenames we want to ignore when building our tree.'
       option :ignore_dir, ['assets'], 'A list of directory names we want to ignore when building our tree.'
       option :home_title, 'Home', 'The default link title of the home page (located at "/"), if otherwise not detected.'
@@ -51,8 +52,10 @@ module Middleman
         # Write our directory tree to file as YAML.
         # @todo: This step doesn't rebuild during live-reload, which causes errors if you move files
         #        around during development. It may not be that hard to set up. Low priority though.
-        data_path = app.settings.data_dir + '/' + options.data_file
-        IO.write(data_path, YAML::dump(tree_hash))
+        unless options.data_file_keep
+          data_path = app.settings.data_dir + '/' + options.data_file
+          IO.write(data_path, YAML::dump(tree_hash))
+        end
       end
 
 
