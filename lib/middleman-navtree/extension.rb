@@ -53,6 +53,8 @@ module Middleman
         # @todo: This step doesn't rebuild during live-reload, which causes errors if you move files
         #        around during development. It may not be that hard to set up. Low priority though.
         if options.automatic_tree_updates
+          FileUtils.mkdir_p(app.settings.data_dir)
+
           data_path = app.settings.data_dir + '/' + options.data_file
           IO.write(data_path, YAML::dump(tree_hash))
         end
