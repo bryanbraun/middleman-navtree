@@ -8,7 +8,7 @@ module Middleman
     # @todo: Test the extension against a middleman-blog install.
     class NavTreeExtension < ::Middleman::Extension
       # All the options for this extension
-      option :source_dir, 'source', 'The directory our tree will begin at.'
+      option :source_dir, 'source', 'The directory our tree will begin at.' # This setting does nothing but remains listed for backwards compatibility.
       option :data_file, 'tree.yml', 'The file we will write our directory tree to.'
       option :automatic_tree_updates, true, 'The tree.yml file will be updated automatically when source files are changed.'
       option :ignore_files, ['sitemap.xml', 'robots.txt'], 'A list of filenames we want to ignore when building our tree.'
@@ -44,7 +44,7 @@ module Middleman
         options.ignore_dir << app.settings.partials_dir
 
         # Build a hash out of our directory information
-        tree_hash = scan_directory(options.source_dir, options)
+        tree_hash = scan_directory(app.settings.source, options)
 
         # Promote any promoted files to the beginning of our hash.
         tree_hash = promote_files(tree_hash, options)
@@ -75,7 +75,7 @@ module Middleman
           next if options.ignore_files.include? filename
 
           if options.promote_files.include? filename
-            original_path = path.sub(/^#{options.source_dir}/, '') + '/' + filename
+            original_path = path.sub(/^#{app.settings.source}/, '') + '/' + filename
             @existing_promotes << original_path
             next
           end
@@ -96,7 +96,7 @@ module Middleman
               next unless options.ext_whitelist.include? File.extname(filename)
             end
 
-            original_path = path.sub(/^#{options.source_dir}/, '') + '/' + filename
+            original_path = path.sub(/^#{app.settings.source}/, '') + '/' + filename
             data.store(filename.gsub(' ', '%20'), original_path.gsub(' ', '%20'))
           end
         end
