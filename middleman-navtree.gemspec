@@ -21,6 +21,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # The version of middleman-core this extension depends on.
-  s.add_runtime_dependency("middleman-core", ["~> 3.3"])
+  s.add_runtime_dependency("middleman-core", ["~> 4.0"])
   s.add_runtime_dependency("titleize", ["~> 1.3"])
 end
