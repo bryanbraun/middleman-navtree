@@ -11,12 +11,21 @@ module Middleman
           # This is a file.
           # Get the Sitemap resource for this file.
           # note: sitemap.extensionless_path converts the path to its 'post-build' extension.
-          this_resource = sitemap.find_resource_by_path(sitemap.extensionless_path(value))
-          # Define string for active states.
-          active = this_resource == current_page ? 'active' : ''
-          title = discover_title(this_resource)
-          link = link_to(title, this_resource)
-          html << "<li class='child #{active}'>#{link}</li>"
+          
+          # Make sure the extension path ends with .html (in case we're parsing someting like .adoc)
+          extensionlessPath = sitemap.extensionless_path(value)
+          unless extensionlessPath.end_with? ".html"
+           extensionlessPath << ".html"
+          end
+          
+          this_resource = sitemap.find_resource_by_path(extensionlessPath)
+          if this_resource
+            # Define string for active states.
+            active = this_resource == current_page ? 'active' : ''
+            title = discover_title(this_resource)
+            link = link_to(title, this_resource)
+            html << "<li class='child #{active}'>#{link}</li>"
+          end
         else
           # This is the first level source directory. We treat it special because
           # it has no key and needs no list item.
