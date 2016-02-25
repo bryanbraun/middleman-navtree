@@ -35,16 +35,16 @@ module Middleman
       def after_configuration
         # Add the user's config directories to the "ignore_dir" option because
         # these are all things we won't need printed in a NavTree.
-        options.ignore_dir << app.settings.js_dir
-        options.ignore_dir << app.settings.css_dir
-        options.ignore_dir << app.settings.fonts_dir
-        options.ignore_dir << app.settings.images_dir
-        options.ignore_dir << app.settings.helpers_dir
-        options.ignore_dir << app.settings.layouts_dir
-        options.ignore_dir << app.settings.partials_dir
+        options.ignore_dir << app.config[:js_dir]
+        options.ignore_dir << app.config[:css_dir]
+        options.ignore_dir << app.config[:fonts_dir]
+        options.ignore_dir << app.config[:images_dir]
+        options.ignore_dir << app.config[:helpers_dir]
+        options.ignore_dir << app.config[:layouts_dir]
+        options.ignore_dir << app.config[:partials_dir]
 
         # Build a hash out of our directory information
-        tree_hash = scan_directory(app.settings.source, options)
+        tree_hash = scan_directory(app.config[:source], options)
 
         # Promote any promoted files to the beginning of our hash.
         tree_hash = promote_files(tree_hash, options)
@@ -53,9 +53,9 @@ module Middleman
         # @todo: This step doesn't rebuild during live-reload, which causes errors if you move files
         #        around during development. It may not be that hard to set up. Low priority though.
         if options.automatic_tree_updates
-          FileUtils.mkdir_p(app.settings.data_dir)
+          FileUtils.mkdir_p(app.config[:data_dir])
 
-          data_path = app.settings.data_dir + '/' + options.data_file
+          data_path = app.config[:data_dir] + '/' + options.data_file
           IO.write(data_path, YAML::dump(tree_hash))
         end
       end
@@ -75,7 +75,7 @@ module Middleman
           next if options.ignore_files.include? filename
 
           if options.promote_files.include? filename
-            original_path = path.sub(/^#{app.settings.source}/, '') + '/' + filename
+            original_path = path.sub(/^#{app.config[:source]}/, '') + '/' + filename
             @existing_promotes << original_path
             next
           end
@@ -96,7 +96,7 @@ module Middleman
               next unless options.ext_whitelist.include? File.extname(filename)
             end
 
-            original_path = path.sub(/^#{app.settings.source}/, '') + '/' + filename
+            original_path = path.sub(/^#{app.config[:source]}/, '') + '/' + filename
             data.store(filename.gsub(' ', '%20'), original_path.gsub(' ', '%20'))
           end
         end
