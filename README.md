@@ -77,6 +77,19 @@ You can likewise limit pagination to a specific subtree:
 
     <%= previous_link(data.tree['chapter-2']) %><%= next_link(data.tree['chapter-2']) %>
 
+## Localization
+
+Default locale is `:en`. If you want to change it for example to `:pl`, configure middleman:
+
+    activate :i18n, :mount_at_root => :pl
+
+and put locales files in `locales` directory in format:
+
+    ---
+      pl:
+        previous_page: 'Poprzednia'
+        next_page: 'Następna'
+
 ## Known Issues
 
 Middleman Navtree does not currently support links to files using [Directory Indexes](https://middlemanapp.com/advanced/pretty_urls/). For details and the status of this feature, see [#12 Support Directory Indexes](https://github.com/bryanbraun/middleman-navtree/issues/12).
