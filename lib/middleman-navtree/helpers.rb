@@ -64,7 +64,7 @@ module Middleman
           prev_page = pagelist[position - 1]
           options = {:class => "previous"}
           unless first_page?(pagelist)
-            link_to(I18n.t("previous_page"), prev_page, options)
+            link_to(I18n.t("previous_page", default: 'Previous Page'), prev_page, options)
           end
         end
       end
@@ -78,7 +78,7 @@ module Middleman
           next_page = pagelist[position + 1]
           options = {:class => "next"}
           unless last_page?(pagelist)
-            link_to(I18n.t("next_page"), next_page, options)
+            link_to(I18n.t("next_page", default: 'Next Page'), next_page, options)
           end
         end
       end
