@@ -83,7 +83,7 @@ Default locale is `:en`. If you want to change it for example to `:pl`, configur
 
     activate :i18n, :mount_at_root => :pl
 
-and put locales files in `locales` directory in format:
+and put locales file `pl.yml` in `locales` directory in format:
 
     ---
       pl:
