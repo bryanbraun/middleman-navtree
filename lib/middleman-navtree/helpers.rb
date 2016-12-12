@@ -11,13 +11,13 @@ module Middleman
           # This is a file.
           # Get the Sitemap resource for this file.
           # note: sitemap.extensionless_path converts the path to its 'post-build' extension.
-          
+
           # Make sure the extension path ends with .html (in case we're parsing someting like .adoc)
           extensionlessPath = sitemap.extensionless_path(value)
           unless extensionlessPath.end_with? ".html"
            extensionlessPath << ".html"
           end
-          
+
           this_resource = sitemap.find_resource_by_path(extensionlessPath)
           if this_resource
             # Define string for active states.
@@ -64,7 +64,7 @@ module Middleman
           prev_page = pagelist[position - 1]
           options = {:class => "previous"}
           unless first_page?(pagelist)
-            link_to(I18n.t("previous_page", default: 'Previous Page'), prev_page, options)
+            link_to(I18n.t("previous_page", default: 'Previous'), prev_page, options)
           end
         end
       end
@@ -78,7 +78,7 @@ module Middleman
           next_page = pagelist[position + 1]
           options = {:class => "next"}
           unless last_page?(pagelist)
-            link_to(I18n.t("next_page", default: 'Next Page'), next_page, options)
+            link_to(I18n.t("next_page", default: 'Next'), next_page, options)
           end
         end
       end
