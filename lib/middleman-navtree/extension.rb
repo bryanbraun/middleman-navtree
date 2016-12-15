@@ -14,9 +14,9 @@ module Middleman
       option :ignore_files, ['sitemap.xml', 'robots.txt'], 'A list of filenames we want to ignore when building our tree.'
       option :ignore_dir, ['assets'], 'A list of directory names we want to ignore when building our tree.'
       option :home_title, 'Home', 'The default link title of the home page (located at "/"), if otherwise not detected.'
-      option :promote_files, [], 'A list of files you want to push to the front of the tree (if they exist).'
+      option :promote_files, ['index.html.erb'], 'A list of files you want to push to the front of the tree (if they exist).'
       option :ext_whitelist, [], 'A whitelist of filename extensions (post-render) that we are allowing in our navtree. Example: [".html"]'
-      option :directory_index, true, "Enables directory indexing, where directories with index files will be rendered as links"
+      option :directory_index, false, "Enables directory indexing, where directories with index files will be rendered as links"
 
       # Helpers for use within templates and layouts.
       self.defined_helpers = [ ::Middleman::NavTree::Helpers ]
