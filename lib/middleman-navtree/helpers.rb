@@ -10,12 +10,10 @@ module Middleman
           # This is a file.
           # Get the Sitemap resource for this file.
           # note: sitemap.extensionless_path converts the path to its 'post-build' extension.
-
           this_resource = resource_from_value(value)
           unless extensions[:navtree].options[:directory_index] && this_resource.directory_index?
             html << child_li(this_resource) if this_resource
           end
-
         else
           # This is the first level source directory. We treat it special because
           # it has no key and needs no list item.
@@ -141,13 +139,14 @@ module Middleman
 
       private
 
+      # generates an HTML li child from a given resource
       def child_li(resource)
-        active = resource == current_page ? 'active' : ''
         title = discover_title(resource)
         link = link_to(title, resource)
-        "<li class='child #{active}'>#{link}</li>"
+        "<li class='child #{resource_status(resource)}'>#{link}</li>"
       end
-
+      
+      # returns a resource from a provided value 
       def resource_from_value(value)
         extensionlessPath = sitemap.extensionless_path(value)
         unless extensionlessPath.end_with? ".html"
@@ -155,20 +154,30 @@ module Middleman
         end
         sitemap.find_resource_by_path(extensionlessPath)
       end
-
+      
+      # if directory_index is enabled and the provided directory contains an index,
+      # generate a linked li.parent
+      # otherwise returns a normal (non-linked) HTML li.parent
       def directory_index_aware_li(key,value)
         name = format_directory_name(key)
         if extensions[:navtree].options[:directory_index] && index_file = value.keys.detect{|k| k.start_with?("index")}
+          # removes index.html from some/directory/index.html 
           destination = value[index_file].split("/")[0..-2].join("/") + "/"
           link = link_to(name, destination)
           resource = sitemap.find_resource_by_path(destination)
-          active = resource == current_page ? 'active' : ''
-          "<li class='parent #{active}'><span class='parent-label'>#{link}</span>"
+          "<li class='parent #{resource_status(resource)}'><span class='parent-label'>#{link}</span>"
         else
           "<li class='parent'><span class='parent-label'>#{name}</span>"
         end
       end
-
+      
+      
+      # checks if this resource is the current page
+      # returns active if it is, an empty string otherwise
+      def resource_status(resource)
+        resource == current_page ? 'active' : ''
+      end
+      
     end
   end
 end
