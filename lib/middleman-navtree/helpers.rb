@@ -164,11 +164,10 @@ module Middleman
           # removes index.html from some/directory/index.html
           destination = value[index_file].split("/")[0..-2].join("/") + "/index"
           resource = sitemap.find_resource_by_page_id(destination.sub(/\A\//, ""))
-
           link = link_to(name, resource.url)
           "<li class='parent #{resource_status(resource)}'><span class='parent-label'>#{link}</span>"
         else
-          "<li class='parent xx'><span class='parent-label'>#{name}</span>"
+          "<li class='parent'><span class='parent-label'>#{name}</span>"
         end
       end
 
