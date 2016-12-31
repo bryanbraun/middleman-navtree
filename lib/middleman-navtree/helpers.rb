@@ -10,7 +10,9 @@ module Middleman
           # This is a file.
           # Get the Sitemap resource for this file.
           # note: sitemap.extensionless_path converts the path to its 'post-build' extension.
+
           this_resource = resource_from_value(value)
+          return "" if this_resource.nil?
           unless extensions[:navtree].options[:directory_index] && this_resource.directory_index?
             html << child_li(this_resource) if this_resource
           end
@@ -160,11 +162,14 @@ module Middleman
       # otherwise returns a normal (non-linked) HTML li.parent
       def directory_index_aware_li(key,value)
         name = format_directory_name(key)
+
         if extensions[:navtree].options[:directory_index] && index_file = value.keys.detect{|k| k.start_with?("index")}
           # removes index.html from some/directory/index.html
-          destination = value[index_file].split("/")[0..-2].join("/") + "/index"
-          resource = sitemap.find_resource_by_page_id(destination.sub(/\A\//, ""))
-          link = link_to(name, resource.url)
+          destination = value[index_file].split("/")[0..-2].join("/") + "/"
+          link = link_to(name, destination)
+          resource_path = destination.sub(/\A\//, "").sub(".md.erb", "").gsub("%20", " ")
+          resource_path += "index" if resource_path.ends_with?("/")
+          resource = sitemap.find_resource_by_page_id(resource_path)
           "<li class='parent #{resource_status(resource)}'><span class='parent-label'>#{link}</span>"
         else
           "<li class='parent'><span class='parent-label'>#{name}</span>"
@@ -175,7 +180,7 @@ module Middleman
       # checks if this resource is the current page
       # returns active if it is, an empty string otherwise
       def resource_status(resource)
-        resource == current_page ? 'active' : 'inactive'
+        resource == current_page ? 'active' : ''
       end
 
     end
